@@ -122,6 +122,13 @@ async function main(): Promise<void> {
     ...(allowedOrigins === undefined ? {} : { allowedOrigins }),
     ...(maxRequestBodyBytes === undefined ? {} : { maxRequestBodyBytes }),
     auth: httpAuth,
+  }).catch((error: unknown) => {
+    if (typeof error === "object" && error !== null && "code" in error && error.code === "EADDRINUSE") {
+      throw new EngineStartupError(
+        `HTTP port ${port} is already in use. Stop the existing server before starting another instance.`,
+      );
+    }
+    throw error;
   });
 
   let closing = false;

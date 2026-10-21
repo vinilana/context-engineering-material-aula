@@ -18,6 +18,8 @@ npm run mcp
 The last command starts a loopback-only demonstration server at
 `http://127.0.0.1:3334/mcp`. Keep it running while using the third scenario.
 Clients connect to that URL; they do not launch a stdio process or open SQLite.
+Run one server per port. If an instance is already listening, startup identifies
+the occupied port; stop that instance before starting another one.
 
 The engine uses Node's built-in `node:sqlite`, available in the supported
 Node.js >=22.20 runtime, with no separate database server or native npm driver.

@@ -1,6 +1,7 @@
 import { test } from "vitest";
 import assert from "node:assert/strict";
-import { spawn } from "node:child_process";
+import { spawn, execFile } from "node:child_process";
+import { promisify } from "node:util";
 import { once } from "node:events";
 import { DatabaseSync } from "node:sqlite";
 import { mkdtemp, rm } from "node:fs/promises";
@@ -99,3 +100,18 @@ test("authentication fails closed unless development mode is explicitly confined
   assert.throws(() => createHttpAuth({ mode: "development", host: "0.0.0.0" }), /loopback/);
   assert.throws(() => createHttpAuth({ mode: "unknown", host: "127.0.0.1" }), /AUTH_MODE/);
 });
+
+test("startup identifies an occupied HTTP port", async (t) => {
+  const { url, databasePath } = await startServer(t);
+  const port = new URL(url).port;
+  await assert.rejects(promisify(execFile)(process.execPath, [fileURLToPath(new URL("../dist/mcp-http.js", import.meta.url))], {
+    cwd: tmpdir(),
+    env: { ...process.env, CONTEXT_DB_PATH: databasePath, INVOKTA_HTTP_HOST: "127.0.0.1", INVOKTA_HTTP_PORT: port, INVOKTA_HTTP_AUTH_MODE: "development" },
+    timeout: 5000,
+  }), (error: unknown) => {
+    const failure = error as { code: number; stderr: string };
+    assert.equal(failure.code, 1);
+    assert.match(failure.stderr, /HTTP port .* is already in use/);
+    return true;
+  });
+}, 15000);
