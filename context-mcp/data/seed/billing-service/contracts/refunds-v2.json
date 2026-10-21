@@ -1,0 +1,34 @@
+{
+  "contract": "billing.refunds.create",
+  "version": "2.1.0",
+  "transport": "POST /internal/v2/refunds",
+  "labPort": "PaymentGateway.refund(request)",
+  "requestSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["paymentId", "amountInCents", "currency", "reason", "idempotencyKey"],
+    "properties": {
+      "paymentId": { "type": "string", "minLength": 1 },
+      "amountInCents": { "type": "integer", "minimum": 1 },
+      "currency": { "const": "BRL" },
+      "reason": { "const": "CUSTOMER_REQUEST" },
+      "idempotencyKey": { "type": "string", "pattern": "^cancel:.+$" }
+    }
+  },
+  "responseExample": { "refundId": "refund-123" },
+  "rules": [
+    "paymentId identifica o pagamento capturado; não substituir pelo orderId.",
+    "amountInCents é inteiro em centavos; não usar amount, amountCents ou reais decimais.",
+    "Para cancelamento integral, usar o total do pedido, incluindo taxa de entrega.",
+    "idempotencyKey deve ser cancel:<orderId>, inclusive em retries com outro header HTTP.",
+    "Uma repetição da chave retorna o estorno anterior; não criar uma nova chave no retry.",
+    "No laboratório, testar o contrato com spy/fake; MemoryPayments não valida este schema."
+  ],
+  "requestExample": {
+    "paymentId": "pay-1",
+    "amountInCents": 3900,
+    "currency": "BRL",
+    "reason": "CUSTOMER_REQUEST",
+    "idempotencyKey": "cancel:order-1"
+  }
+}

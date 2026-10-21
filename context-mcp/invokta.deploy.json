@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "entry": "dist/mcp-http.js",
+  "env": {
+    "required": [],
+    "optional": [
+      "CONTEXT_DB_PATH",
+      "CONTEXT_MCP_TOKEN",
+      "INVOKTA_HTTP_AUTH_MODE"
+    ]
+  },
+  "image": {
+    "baseImage": "node:22-slim",
+    "port": 3000
+  },
+  "healthcheck": {
+    "expect": "alive"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "name": "levva-context-engineering-lab",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.20.0"
+  },
+  "scripts": {
+    "build": "npm run build --prefix scenarios/01-sem-contexto && npm run build --prefix scenarios/02-com-contexto && npm run build --workspace pronto-context-engine",
+    "typecheck": "tsc -p scenarios/01-sem-contexto --noEmit && tsc -p scenarios/02-com-contexto --noEmit && npm run typecheck --workspace pronto-context-engine",
+    "test": "npm run build --prefix scenarios/01-sem-contexto && npm run build --prefix scenarios/02-com-contexto && npm run test --prefix scenarios/01-sem-contexto && npm run test --prefix scenarios/02-com-contexto && npm run check --workspace pronto-context-engine && tsx --test lab/test/*.test.ts",
+    "check:parity": "node lab/check-parity.mjs",
+    "check": "npm test && npm run check:parity",
+    "demo:prepare": "node lab/prepare.mjs",
+    "context:query": "npm run direct --workspace pronto-context-engine --",
+    "mcp": "npm run mcp:demo --workspace pronto-context-engine",
+    "context:seed": "npm run build --workspace pronto-context-engine && npm run db:seed --workspace pronto-context-engine",
+    "mcp:http": "npm run mcp:http --workspace pronto-context-engine"
+  },
+  "dependencies": {
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/sdk": "1.32.1",
+    "@types/node": "22.20.5",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  },
+  "workspaces": [
+    "context-mcp"
+  ]
+}

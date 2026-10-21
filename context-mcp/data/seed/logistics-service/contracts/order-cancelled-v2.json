@@ -1,0 +1,41 @@
+{
+  "contract": "orders.order-cancelled.v2",
+  "version": "2.0.0",
+  "consumer": "logistics-service",
+  "labPort": "EventBus.publish(event)",
+  "eventSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["eventId", "type", "version", "occurredAt", "data"],
+    "properties": {
+      "eventId": { "type": "string", "minLength": 1 },
+      "type": { "const": "orders.order-cancelled" },
+      "version": { "const": 2 },
+      "occurredAt": { "type": "string", "format": "date-time" },
+      "data": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["orderId", "restaurantId", "reason"],
+        "properties": {
+          "orderId": { "type": "string", "minLength": 1 },
+          "restaurantId": { "type": "string", "minLength": 1 },
+          "reason": { "const": "CUSTOMER_REQUEST" }
+        }
+      }
+    }
+  },
+  "rules": [
+    "Usar eventId estável entre retries; o consumidor deduplica por esse identificador.",
+    "occurredAt representa o instante do cancelamento, não o instante da última tentativa de publicar.",
+    "Publicar após obter confirmação do estorno.",
+    "Não incluir customerId, endereço, paymentId, refundId ou itens no envelope.",
+    "No laboratório, testar o contrato com spy/fake; MemoryEvents não valida este schema."
+  ],
+  "eventExample": {
+    "eventId": "evt-order-1-cancelled",
+    "type": "orders.order-cancelled",
+    "version": 2,
+    "occurredAt": "2026-10-21T12:00:00.000Z",
+    "data": { "orderId": "order-1", "restaurantId": "rest-1", "reason": "CUSTOMER_REQUEST" }
+  }
+}
